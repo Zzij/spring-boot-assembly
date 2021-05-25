@@ -629,6 +629,54 @@ sh mvn-package.sh dev
 </fileSet>
 ```
     
+#### Junit自动化测试，并生成生成报告
+1. 增加插件
+```xml
+<plugin>
+    <groupId>org.jvnet.maven-antrun-extended-plugin</groupId>
+    <artifactId>maven-antrun-extended-plugin</artifactId>
+    <version>1.8</version>
+    <executions>
+        <execution>
+            <id>test-reports</id>
+            <phase>test</phase>
+            <configuration>
+                <tasks>
+                    <!-- 防止打包跳过测试的时候，没有该文件夹，导致打包失败 -->
+                    <mkdir dir="${basedir}/target/surefire-reports"/>
+                    <junitreport todir="${basedir}/target/surefire-reports">
+                        <fileset dir="${basedir}/target/surefire-reports">
+                            <include name="**/*.xml"/>
+                        </fileset>
+                        <report format="frames" todir="${basedir}/target/surefire-reports"/>
+                    </junitreport>
+                </tasks>
+            </configuration>
+            <goals>
+                <goal>run</goal>
+            </goals>
+        </execution>
+    </executions>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant-junit</artifactId>
+            <version>1.8.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant-trax</artifactId>
+            <version>1.8.0</version>
+        </dependency>
+    </dependencies>
+</plugin>
+```
+2. 使用命令测试，生成测试报告
+> mvn clean test
+
+该命令遇到测试失败时，无法生成完整的测试报告，可使用
+> mvn clean test -Dmaven.test.failure.ignore=true
+
 ##### 参考：
 - https://docs.spring.io/spring-boot/docs/current/maven-plugin/
 - http://maven.apache.org/components/plugins/maven-assembly-plugin/usage.html

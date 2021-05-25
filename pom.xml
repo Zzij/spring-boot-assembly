@@ -95,7 +95,7 @@
     <build>
 
         <!-- 打包后的启动jar名称 -->
-        <finalName>spring-boot-assembly</finalName>
+        <finalName>${project.artifactId}</finalName>
 
         <resources>
             <resource>
@@ -148,6 +148,46 @@
         </resources>
 
         <plugins>
+
+            <plugin>
+                <groupId>org.jvnet.maven-antrun-extended-plugin</groupId>
+                <artifactId>maven-antrun-extended-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <id>test-reports</id>
+                        <phase>test</phase>
+                        <configuration>
+                            <tasks>
+                                <!-- 防止打包跳过测试的时候，没有该文件夹，导致打包失败 -->
+                                <mkdir dir="${basedir}/target/surefire-reports"/>
+                                <junitreport todir="${basedir}/target/surefire-reports">
+                                    <fileset dir="${basedir}/target/surefire-reports">
+                                        <include name="**/*.xml"/>
+                                    </fileset>
+                                    <report format="frames" todir="${basedir}/target/surefire-reports"/>
+                                </junitreport>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.ant</groupId>
+                        <artifactId>ant-junit</artifactId>
+                        <version>1.8.0</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.apache.ant</groupId>
+                        <artifactId>ant-trax</artifactId>
+                        <version>1.8.0</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -158,7 +198,7 @@
                             <!-- 项目启动类 -->
                             <mainClass>io.geekidea.springboot.assembly.Application</mainClass>
                             <!-- 依赖的jar的目录前缀 -->
-                            <classpathPrefix>../lib</classpathPrefix>
+                            <classpathPrefix>lib</classpathPrefix>
                             <addClasspath>true</addClasspath>
                         </manifest>
                     </archive>
@@ -224,14 +264,14 @@
             </plugin>
 
             <!-- 打包时跳过测试 -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.1</version>
-                <configuration>
-                    <skipTests>true</skipTests>
-                </configuration>
-            </plugin>
+            <!--            <plugin>-->
+            <!--                <groupId>org.apache.maven.plugins</groupId>-->
+            <!--                <artifactId>maven-surefire-plugin</artifactId>-->
+            <!--                <version>2.22.1</version>-->
+            <!--                <configuration>-->
+            <!--                    <skipTests>true</skipTests>-->
+            <!--                </configuration>-->
+            <!--            </plugin>-->
 
             <!-- 打包插件 -->
             <plugin>
@@ -252,7 +292,6 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
 
